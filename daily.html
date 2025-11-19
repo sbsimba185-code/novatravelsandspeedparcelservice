@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Statement</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <h1>📅 Daily Statement</h1>
+    <p class="subtitle">Daily summary of Bookings and Received parcels</p>
+</header>
+
+<div class="page-container">
+
+    <!-- Search Box -->
+    <div class="search-box">
+        <input type="text" id="searchDaily" placeholder="Search Daily Statement...">
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+        <table id="dailyTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <p>Transport Management — Staff View Only</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+    // Load daily statement CSV file
+    loadCSV("data/daily.csv", "dailyTable", "searchDaily");
+</script>
+
+</body>
+</html>

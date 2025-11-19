@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Statement</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <h1>📆 Monthly Statement</h1>
+    <p class="subtitle">Summary of all parcels for the selected month</p>
+</header>
+
+<div class="page-container">
+
+    <!-- Search Box -->
+    <div class="search-box">
+        <input type="text" id="searchMonthly" placeholder="Search Monthly Statement...">
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+        <table id="monthlyTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <p>Transport Management — Staff View Only</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+    // Load monthly CSV into table
+    loadCSV("data/monthly.csv", "monthlyTable", "searchMonthly");
+</script>
+
+</body>
+</html>

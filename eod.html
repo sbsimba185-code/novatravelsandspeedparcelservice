@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EOD Loaded Parcels</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <h1>🚚 EOD Loaded Parcels</h1>
+    <p class="subtitle">View all entries loaded at end of day</p>
+</header>
+
+<div class="page-container">
+
+    <!-- Search -->
+    <div class="search-box">
+        <input type="text" id="searchEOD" placeholder="Search EOD Entries...">
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+        <table id="eodTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <p>Transport Management — Staff View Only</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+    // Load EOD CSV into table
+    loadCSV("data/eod.csv", "eodTable", "searchEOD");
+</script>
+
+</body>
+</html>

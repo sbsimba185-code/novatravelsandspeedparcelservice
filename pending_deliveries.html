@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Deliveries</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <h1>⏳ Pending Deliveries</h1>
+    <p class="subtitle">List of parcels not delivered to customers</p>
+</header>
+
+<div class="page-container">
+
+    <!-- Search Box -->
+    <div class="search-box">
+        <input type="text" id="searchPendingDeliveries" placeholder="Search Pending Deliveries...">
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+        <table id="pendingDeliveriesTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <p>Transport Management — Staff View Only</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+    // Load pending deliveries CSV
+    loadCSV("data/pending_deliveries.csv", "pendingDeliveriesTable", "searchPendingDeliveries");
+</script>
+
+</body>
+</html>

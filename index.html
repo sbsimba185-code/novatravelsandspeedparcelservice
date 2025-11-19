@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transport Staff Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <h1>📦 NOVA TRAVELS AND SPEED PARCEL SERVICE</h1>
+    <p class="subtitle">View all transport records easily</p>
+</header>
+
+<!-- ========== ADVANCED SEARCH (LIKE PYTHON APP) ========== -->
+
+<section class="page-container advanced-search">
+    <h2 class="page-title">🔍 Advanced Search</h2>
+    <p>Search in both Bookings and Received using any combination of fields.</p>
+
+    <form class="search-form" onsubmit="event.preventDefault(); advancedSearch();">
+        <div class="search-grid">
+            <label>LR No:
+                <input type="text" id="f_lr_no"><br>
+            </label>
+
+            <label>Date:
+                <input type="text" id="f_date" placeholder="dd-mm-yyyy"><br>
+            </label>
+
+            <label>From Customer:
+                <input type="text" id="f_from_customer"><br>
+            </label>
+
+            <label>To Customer:
+                <input type="text" id="f_to_customer"><br>
+            </label>
+
+            <label>To Place:
+                <input type="text" id="f_to_place"><br>
+            </label>
+
+            <label>From Place:
+                <input type="text" id="f_from_place"><br>
+            </label>
+
+            <label>Quantity:
+                <input type="text" id="f_quantity"><br>
+            </label>
+
+            <label>Amount:
+                <input type="text" id="f_amount"><br>
+            </label>
+
+            <label>Payment Method (1/2/3):
+                <input type="text" id="f_payment_method" maxlength="1"><br>
+            </label>
+        </div>
+
+        <div class="search-actions">
+            <button type="submit" class="primary-btn">Search</button>
+            <button type="button" class="secondary-btn" onclick="resetAdvancedSearch()">Clear</button>
+            <button type="button" id="exportBtn" class="secondary-btn" style="display:none" onclick="exportSearchResults()">
+                Export Results
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- ========== SEARCH RESULTS AREA ========== -->
+
+<section class="page-container" id="resultsSection">
+    <h2 class="page-title">Search Results</h2>
+    <p id="noResultsMsg">Enter search values above and press <b>Search</b>.</p>
+
+    <div id="bookingsResultsSection" style="display:none; margin-top:10px;">
+        <h3 class="section-heading">📄 Bookings (Chennai)</h3>
+        <div class="table-wrapper">
+            <table id="searchBookingsTable">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="receivedResultsSection" style="display:none; margin-top:20px;">
+        <h3 class="section-heading">📦 Received (Districts → Chennai)</h3>
+        <div class="table-wrapper">
+            <table id="searchReceivedTable">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <p>Transport Management — Staff View Only</p>
+</footer>
+
+<script src="script.js"></script>
+<!-- ========== MENU CARDS (same as before) ========== -->
+<main class="menu-container">
+
+    <a href="bookings.html" class="menu-card">
+        <div class="icon">🧾</div>
+        <div class="label">Bookings</div>
+    </a>
+
+    <a href="received.html" class="menu-card">
+        <div class="icon">📦</div>
+        <div class="label">Received</div>
+    </a>
+
+    <a href="eod.html" class="menu-card">
+        <div class="icon">🚚</div>
+        <div class="label">EOD Loaded</div>
+    </a>
+
+    <a href="pending_deliveries.html" class="menu-card">
+        <div class="icon">⏳</div>
+        <div class="label">Pending Deliveries</div>
+    </a>
+
+    <a href="pending_payments.html" class="menu-card">
+        <div class="icon">💰</div>
+        <div class="label">Pending Payments</div>
+    </a>
+
+    <a href="daily.html" class="menu-card">
+        <div class="icon">📅</div>
+        <div class="label">Daily Statement</div>
+    </a>
+
+    <a href="monthly.html" class="menu-card">
+        <div class="icon">📆</div>
+        <div class="label">Monthly Statement</div>
+    </a>
+
+</main>
+</body>
+</html>
