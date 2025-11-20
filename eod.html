@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EOD Loading</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #f4f6fb;
+      color: #222;
+    }
+
+    .page {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding-bottom: 40px;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #2f80ed, #56ccf2);
+      color: #fff;
+      padding: 18px 16px 22px;
+      border-radius: 0 0 18px 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      margin-bottom: 12px;
+    }
+
+    .header-title {
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title span.emoji {
+      font-size: 26px;
+    }
+
+    .header-sub {
+      margin-top: 6px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* Filter panel (D3 style: stacked boxes) */
+    .filter-panel {
+      padding: 10px 12px 4px;
+    }
+
+    .filter-box {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 10px 12px 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 10px;
+      background: #f7f8fc;
+      padding: 6px 8px;
+    }
+
+    .input-row span.icon {
+      font-size: 18px;
+      opacity: 0.7;
+    }
+
+    .input-row input {
+      border: none;
+      outline: none;
+      background: transparent;
+      flex: 1;
+      font-size: 15px;
+      color: #222;
+    }
+
+    .input-row input::placeholder {
+      color: #999;
+    }
+
+    .input-row input[type="date"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      filter: invert(40%);
+    }
+
+    /* Summary card */
+    .summary-card {
+      margin: 4px 10px 10px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      padding: 10px 12px 14px;
+    }
+
+    .summary-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .summary-title {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .summary-title span.icon {
+      font-size: 18px;
+    }
+
+    .summary-info {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .summary-table th,
+    .summary-table td {
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid #eef0f5;
+      white-space: nowrap;
+    }
+
+    .summary-table th {
+      background: #f0f3ff;
+      font-weight: 600;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .summary-table tr:nth-child(even) td {
+      background: #fafbff;
+    }
+
+    .summary-table tr:hover td {
+      background: #eaf3ff;
+    }
+
+    /* Per-truck tables */
+    .truck-section {
+      margin: 10px 10px 0;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .truck-header {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eef0f5;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      background: #f8f9ff;
+    }
+
+    .truck-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .truck-title span.icon {
+      font-size: 18px;
+    }
+
+    .truck-subtotal {
+      font-size: 12px;
+      color: #666;
+      text-align: right;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid #eef0f5;
+    }
+
+    thead tr {
+      background: #f0f3ff;
+    }
+
+    th {
+      font-weight: 600;
+      color: #444;
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fafbff;
+    }
+
+    tbody tr:hover {
+      background: #eaf3ff;
+    }
+
+    .no-data {
+      padding: 14px;
+      text-align: center;
+      color: #777;
+      font-size: 13px;
+    }
+
+    @media (min-width: 768px) {
+      .header-title {
+        font-size: 28px;
+      }
+      th, td {
+        padding: 9px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="header-title">
+        <span class="emoji">🚚</span>
+        <span>EOD Loading</span>
+      </div>
+      <div class="header-sub">
+        End-of-day loading list grouped by truck with Coimbatore / Tirupur totals
+      </div>
+    </header>
+
+    <!-- Filters: D3 layout -->
+    <section class="filter-panel">
+      <div class="filter-box">
+        <span class="filter-label">Select Date</span>
+        <div class="input-row">
+          <span class="icon">📅</span>
+          <input type="date" id="dateFilterEOD">
+        </div>
+      </div>
+
+      <div class="filter-box">
+        <span class="filter-label">Search EOD</span>
+        <div class="input-row">
+          <span class="icon">🔍</span>
+          <input type="text" id="searchEOD"
+                 placeholder="Search by LR No, customer, place, amount...">
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary + tables will be injected here -->
+    <section id="eodContent">
+      <div class="summary-card">
+        <div class="no-data">Loading EOD entries...</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const EOD_STATE = {
+      rows: [],       // all rows from CSV
+      search: "",
+      date: ""        // dd-mm-yyyy
+    };
+
+    // Utility: parse dd-mm-yyyy → Date
+    function parse_ddmmyyyy(str) {
+      const parts = str.split("-");
+      if (parts.length !== 3) return null;
+      const [dd, mm, yyyy] = parts.map(p => parseInt(p, 10));
+      if (!dd || !mm || !yyyy) return null;
+      return new Date(yyyy, mm - 1, dd);
+    }
+
+    // Format number as ₹ style (optional simple format)
+    function formatAmount(n) {
+      if (isNaN(n)) return "0";
+      return n.toLocaleString("en-IN", { maximumFractionDigits: 2 });
+    }
+
+    // Load & parse EOD CSV
+    function loadEODCSV(url) {
+      fetch(url + "?t=" + Date.now())
+        .then(res => res.text())
+        .then(text => {
+          const lines = text.trim().split(/\r?\n/);
+          if (lines.length <= 1) {
+            document.getElementById("eodContent").innerHTML =
+              '<div class="summary-card"><div class="no-data">No EOD records found.</div></div>';
+            return;
+          }
+
+          const header = lines[0].split(",");
+          const idx = {};
+          header.forEach((h, i) => {
+            idx[h.trim().toLowerCase()] = i;
+          });
+
+          const rows = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(",");
+            if (cols.join("").trim().length === 0) continue;
+
+            const get = (name, def = "") => {
+              const j = idx[name];
+              return (j !== undefined && cols[j] !== undefined) ? cols[j].trim() : def;
+            };
+
+            const amountStr = get("amount", "0").replace(/,/g, "");
+            const amountNum = parseFloat(amountStr) || 0;
+
+            rows.push({
+              source_type:   get("source_type"),
+              lr_no:         get("lr_no"),
+              date:          get("date"),          // dd-mm-yyyy
+              from_customer: get("from_customer"),
+              to_customer:   get("to_customer"),
+              place:         get("place"),
+              quantity:      get("quantity"),
+              amount_str:    get("amount"),
+              amount_num:    amountNum,
+              payment:       get("payment_method"),
+              accounted:     get("accounted_date"),
+              truck_no:      get("truck_no"),
+              added_at:      get("added_at")
+            });
+          }
+
+          EOD_STATE.rows = rows;
+
+          // Auto-select latest date in data
+          let latestDate = null;
+          rows.forEach(r => {
+            const d = parse_ddmmyyyy(r.date || "");
+            if (d && (!latestDate || d > latestDate)) {
+              latestDate = d;
+            }
+          });
+
+          if (latestDate) {
+            const yyyy = latestDate.getFullYear();
+            const mm = String(latestDate.getMonth() + 1).padStart(2, "0");
+            const dd = String(latestDate.getDate()).padStart(2, "0");
+
+            const htmlDate = `${yyyy}-${mm}-${dd}`;
+            const displayDate = `${dd}-${mm}-${yyyy}`;
+            const dateInput = document.getElementById("dateFilterEOD");
+
+            if (dateInput) {
+              dateInput.value = htmlDate;
+            }
+            EOD_STATE.date = displayDate;
+          }
+
+          renderEOD();
+        })
+        .catch(err => {
+          console.error("Error loading EOD CSV", err);
+          document.getElementById("eodContent").innerHTML =
+            '<div class="summary-card"><div class="no-data">Error loading EOD data.</div></div>';
+        });
+    }
+
+    // Filter rows based on current state
+    function getFilteredRows() {
+      const { rows, search, date } = EOD_STATE;
+
+      return rows.filter(r => {
+        // date filter (end-of-day)
+        if (date && r.date !== date) return false;
+
+        // text search filter
+        if (search) {
+          const rowText = [
+            r.lr_no, r.date, r.from_customer, r.to_customer,
+            r.place, r.quantity, r.amount_str, r.payment,
+            r.accounted, r.truck_no, r.source_type
+          ].join(" ").toLowerCase();
+          if (!rowText.includes(search)) return false;
+        }
+
+        return true;
+      });
+    }
+
+    // Build summary + truck tables HTML
+    function renderEOD() {
+      const container = document.getElementById("eodContent");
+      const rows = getFilteredRows();
+
+      if (!rows.length) {
+        container.innerHTML =
+          '<div class="summary-card"><div class="no-data">No records found for selected date / search.</div></div>';
+        return;
+      }
+
+      // Summarize by truck_no
+      const trucks = {};
+      rows.forEach(r => {
+        const t = r.truck_no || "(No Truck)";
+        if (!trucks[t]) {
+          trucks[t] = { coimbatore: 0, tirupur: 0 };
+        }
+        const placeUpper = (r.place || "").trim().toUpperCase();
+        if (placeUpper === "TIRUPUR") {
+          trucks[t].tirupur += r.amount_num;
+        } else {
+          trucks[t].coimbatore += r.amount_num;
+        }
+      });
+
+      // Build summary table
+      let html = '<div class="summary-card">';
+      html += '<div class="summary-header">';
+      html += '<div class="summary-title"><span class="icon">📊</span><span>End of Day Summary by Truck</span></div>';
+      html += '<div class="summary-info">';
+      if (EOD_STATE.date) {
+        html += 'Date: ' + EOD_STATE.date;
+      } else {
+        html += 'All dates';
+      }
+      html += '</div></div>';
+
+      html += '<table class="summary-table">';
+      html += '<thead><tr><th>TRUCK NUMBER</th><th>COIMBATORE</th><th>TIRUPUR</th><th>TOTAL</th></tr></thead><tbody>';
+
+      const truckNames = Object.keys(trucks).sort();
+      truckNames.forEach(truck => {
+        const t = trucks[truck];
+        const total = t.coimbatore + t.tirupur;
+        html += '<tr>';
+        html += '<td>' + truck + '</td>';
+        html += '<td>' + formatAmount(t.coimbatore) + '</td>';
+        html += '<td>' + formatAmount(t.tirupur) + '</td>';
+        html += '<td>' + formatAmount(total) + '</td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody>';
+
+// ---- GRAND TOTAL ROW ----
+let grandCoimbatore = 0;
+let grandTirupur = 0;
+
+truckNames.forEach(truck => {
+  grandCoimbatore += trucks[truck].coimbatore;
+  grandTirupur += trucks[truck].tirupur;
+});
+
+let grandTotal = grandCoimbatore + grandTirupur;
+
+html += '<tr style="background:#e2e8ff; font-weight:600;">';
+html += '<td>GRAND TOTAL</td>';
+html += '<td>' + formatAmount(grandCoimbatore) + '</td>';
+html += '<td>' + formatAmount(grandTirupur) + '</td>';
+html += '<td>' + formatAmount(grandTotal) + '</td>';
+html += '</tr>';
+
+html += '</table>';
+html += '</div>'; // end summary-card
+
+      // Build per-truck tables
+      truckNames.forEach(truck => {
+        const tInfo = trucks[truck];
+        const total = tInfo.coimbatore + tInfo.tirupur;
+        const truckRows = rows.filter(r => (r.truck_no || "(No Truck)") === truck);
+
+        html += '<section class="truck-section">';
+        html += '<div class="truck-header">';
+        html += '<div class="truck-title"><span class="icon">🚛</span><span>Truck: ' + truck + '</span></div>';
+        html += '<div class="truck-subtotal">';
+        html += 'Coimbatore: ₹' + formatAmount(tInfo.coimbatore) + ' &nbsp; ';
+        html += 'Tirupur: ₹' + formatAmount(tInfo.tirupur) + '<br>';
+        html += '<strong>Total: ₹' + formatAmount(total) + '</strong>';
+        html += '</div></div>';
+
+        html += '<table>';
+        html += '<thead><tr>';
+        html += '<th>LR No</th>';
+        html += '<th>To Customer</th>';
+        html += '<th>Qty</th>';
+        html += '<th>Amount</th>';
+        html += '<th>To Place</th>';
+        html += '</tr></thead><tbody>';
+
+        truckRows.forEach(r => {
+        html += '<tr>';
+        html += '<td>' + (r.lr_no || "") + '</td>';
+        html += '<td>' + (r.to_customer || "") + '</td>';
+        html += '<td>' + (r.quantity || "") + '</td>';
+        html += '<td>' + (r.amount_str || "") + '</td>';
+        html += '<td>' + (r.place || "") + '</td>';
+        html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        html += '</section>';
+      });
+
+      container.innerHTML = html;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      loadEODCSV("data/eod.csv");
+
+      const searchInput = document.getElementById("searchEOD");
+      const dateInput = document.getElementById("dateFilterEOD");
+
+      searchInput.addEventListener("input", function () {
+        EOD_STATE.search = this.value.trim().toLowerCase();
+        renderEOD();
+      });
+
+      dateInput.addEventListener("change", function () {
+        if (!this.value) {
+          EOD_STATE.date = "";
+        } else {
+          const [yyyy, mm, dd] = this.value.split("-");
+          EOD_STATE.date = `${dd}-${mm}-${yyyy}`;  // store as dd-mm-yyyy
+        }
+        renderEOD();
+      });
+    });
+  </script>
+</body>
+</html>

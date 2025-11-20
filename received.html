@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Received (Districts → Chennai)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #f4f6fb;
+      color: #222;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding-bottom: 40px;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #2f80ed, #56ccf2);
+      color: #fff;
+      padding: 18px 16px 22px;
+      border-radius: 0 0 18px 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      margin-bottom: 12px;
+    }
+
+    .header-title {
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title span.emoji {
+      font-size: 26px;
+    }
+
+    .header-sub {
+      margin-top: 6px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* Filter panel (D3 style: stacked boxes) */
+    .filter-panel {
+      padding: 10px 12px 4px;
+    }
+
+    .filter-box {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 10px 12px 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 10px;
+      background: #f7f8fc;
+      padding: 6px 8px;
+    }
+
+    .input-row span.icon {
+      font-size: 18px;
+      opacity: 0.7;
+    }
+
+    .input-row input {
+      border: none;
+      outline: none;
+      background: transparent;
+      flex: 1;
+      font-size: 15px;
+      color: #222;
+    }
+
+    .input-row input::placeholder {
+      color: #999;
+    }
+
+    .input-row input[type="date"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      filter: invert(40%);
+    }
+
+    /* Table */
+    .card {
+      margin: 6px 10px 0;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background: #f0f3ff;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid #eef0f5;
+    }
+
+    th {
+      font-weight: 600;
+      color: #444;
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fafbff;
+    }
+
+    tbody tr:hover {
+      background: #eaf3ff;
+    }
+
+    .no-data {
+      padding: 16px;
+      text-align: center;
+      color: #777;
+      font-size: 13px;
+    }
+
+    @media (min-width: 768px) {
+      .header-title {
+        font-size: 28px;
+      }
+
+      .filter-box {
+        padding: 12px 14px 14px;
+      }
+
+      th, td {
+        padding: 9px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="header-title">
+        <span class="emoji">📦</span>
+        <span>Received (Districts → Chennai)</span>
+      </div>
+      <div class="header-sub">
+        View all parcel entries received at Chennai from other districts
+      </div>
+    </header>
+
+    <!-- Filters: D3 layout (date box on top, search box below) -->
+    <section class="filter-panel">
+      <div class="filter-box">
+        <span class="filter-label">Select Date</span>
+        <div class="input-row">
+          <span class="icon">📅</span>
+          <input type="date" id="dateFilterReceived">
+        </div>
+      </div>
+
+      <div class="filter-box">
+        <span class="filter-label">Search Received</span>
+        <div class="input-row">
+          <span class="icon">🔍</span>
+          <input type="text" id="searchReceived"
+                 placeholder="Search by LR No, place, customer, amount...">
+        </div>
+      </div>
+    </section>
+
+    <!-- Table -->
+    <section class="card">
+      <table id="receivedTable">
+        <thead>
+          <tr>
+            <th>LR No</th>
+            <th>Date</th>
+            <th>To Customer</th>
+            <th>From Place</th>
+            <th>To Place</th>
+            <th>Qty</th>
+            <th>Amount</th>
+            <th>Pay</th>
+            <th>Accounted</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="9" class="no-data">Loading data...</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const FILTER_STATE = {
+      search: "",
+      date: ""
+    };
+
+    // Convert dd-mm-yyyy → Date object
+    function parse_ddmmyyyy(str) {
+      const parts = str.split("-");
+      if (parts.length !== 3) return null;
+      const [dd, mm, yyyy] = parts.map(p => parseInt(p, 10));
+      if (!dd || !mm || !yyyy) return null;
+      return new Date(yyyy, mm - 1, dd);
+    }
+
+    function applyFilters(tableId) {
+      const table = document.getElementById(tableId);
+      const rows = table.querySelectorAll("tbody tr");
+      const search = FILTER_STATE.search.toLowerCase();
+      const date = FILTER_STATE.date; // dd-mm-yyyy
+
+      rows.forEach(row => {
+        // skip placeholder row
+        if (row.classList.contains("placeholder-row")) return;
+
+        const cells = Array.from(row.children);
+        const rowDate = (cells[1]?.innerText || "").trim(); // second column
+        const rowText = cells.map(td => td.innerText.toLowerCase()).join(" ");
+
+        let ok = true;
+
+        if (date && rowDate !== date) {
+          ok = false;
+        }
+
+        if (ok && search) {
+          if (!rowText.includes(search)) {
+            ok = false;
+          }
+        }
+
+        row.style.display = ok ? "" : "none";
+      });
+    }
+
+    function loadCSV(url, tableId) {
+      fetch(url + "?t=" + Date.now())
+        .then(res => res.text())
+        .then(text => {
+          const lines = text.trim().split(/\r?\n/);
+          if (lines.length <= 1) {
+            const tbody = document.querySelector("#" + tableId + " tbody");
+            tbody.innerHTML = '<tr><td colspan="9" class="no-data">No records found.</td></tr>';
+            return;
+          }
+
+          const header = lines[0].split(",");
+          const tbody = document.querySelector("#" + tableId + " tbody");
+          tbody.innerHTML = "";
+
+          let latestDate = null;
+
+          for (let i = 1; i < lines.length; i++) {
+            const row = lines[i].split(",");
+            if (row.length < 9) continue;
+
+            const tr = document.createElement("tr");
+
+            // We expect CSV columns in this order:
+            // lr_no,date,to_customer,from_place,to_place,quantity,amount,payment_method,accounted_date
+            for (let col = 0; col < 9; col++) {
+              const td = document.createElement("td");
+              td.textContent = row[col] ?? "";
+              tr.appendChild(td);
+            }
+
+            tbody.appendChild(tr);
+
+            const d = parse_ddmmyyyy(row[1] || "");
+            if (d) {
+              if (!latestDate || d > latestDate) {
+                latestDate = d;
+              }
+            }
+          }
+
+          // Auto-select latest date if available
+          if (latestDate) {
+            const yyyy = latestDate.getFullYear();
+            const mm = String(latestDate.getMonth() + 1).padStart(2, "0");
+            const dd = String(latestDate.getDate()).padStart(2, "0");
+            const htmlDate = `${yyyy}-${mm}-${dd}`;
+            const displayDate = `${dd}-${mm}-${yyyy}`;
+
+            const dateInput = document.getElementById("dateFilterReceived");
+            dateInput.value = htmlDate;
+            FILTER_STATE.date = displayDate;
+            applyFilters(tableId);
+          }
+        })
+        .catch(err => {
+          console.error("Error loading CSV", err);
+          const tbody = document.querySelector("#" + tableId + " tbody");
+          tbody.innerHTML =
+            '<tr><td colspan="9" class="no-data">Error loading data.</td></tr>';
+        });
+    }
+
+    // --- Event handlers ---
+    document.addEventListener("DOMContentLoaded", function () {
+      loadCSV("data/received.csv", "receivedTable");
+
+      const searchInput = document.getElementById("searchReceived");
+      const dateInput = document.getElementById("dateFilterReceived");
+
+      searchInput.addEventListener("input", function () {
+        FILTER_STATE.search = this.value.trim().toLowerCase();
+        applyFilters("receivedTable");
+      });
+
+      dateInput.addEventListener("change", function () {
+        if (!this.value) {
+          FILTER_STATE.date = "";
+        } else {
+          const [yyyy, mm, dd] = this.value.split("-");
+          FILTER_STATE.date = `${dd}-${mm}-${yyyy}`;
+        }
+        applyFilters("receivedTable");
+      });
+    });
+  </script>
+</body>
+</html>

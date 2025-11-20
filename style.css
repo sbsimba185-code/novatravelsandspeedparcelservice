@@ -1,0 +1,286 @@
+/* ----------------------------
+   GLOBAL STYLES
+----------------------------- */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f6f7fb;
+    color: #333;
+}
+
+/* Header */
+.header {
+    background: #4285f4;
+    color: white;
+    padding: 25px 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.subtitle {
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+/* ----------------------------
+   HOME PAGE MENU CARDS
+----------------------------- */
+
+.menu-container {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+}
+
+.menu-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px 10px;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: 0.2s;
+}
+
+.menu-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+.icon {
+    font-size: 45px;
+    margin-bottom: 8px;
+}
+
+.label {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+/* ----------------------------
+   TABLE PAGE LAYOUT
+----------------------------- */
+
+.page-container {
+    padding: 15px;
+}
+
+/* Page Title */
+.page-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Search Box */
+.search-box {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.search-box input {
+    width: 95%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+/* ----------------------------
+   TABLE STYLING
+----------------------------- */
+
+.table-wrapper {
+    overflow-x: auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #f1f3f4;
+    font-size: 15px;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+/* Payment Colors */
+.pay-paid {
+    color: #0a8f08;
+    font-weight: bold;
+}
+
+.pay-topay {
+    color: #d97706;
+    font-weight: bold;
+}
+
+.pay-ac {
+    color: #0369a1;
+    font-weight: bold;
+}
+
+/* ----------------------------
+   RESPONSIVE TABLE AUTO-SIZE
+   (Your Option C)
+----------------------------- */
+
+/* Mobile — large, readable */
+@media (max-width: 700px) {
+    th, td {
+        padding: 14px;
+        font-size: 17px;
+    }
+    .page-title {
+        font-size: 22px;
+    }
+}
+
+/* Desktop — compact */
+@media (min-width: 701px) {
+    th, td {
+        padding: 8px;
+        font-size: 14px;
+    }
+}
+
+/* ----------------------------
+   FOOTER
+----------------------------- */
+
+.footer {
+    text-align: center;
+    padding: 15px;
+    margin-top: 20px;
+    color: #666;
+    font-size: 14px;
+}
+/* ----------------------------
+   ADVANCED SEARCH FORM
+----------------------------- */
+
+.advanced-search {
+    margin-top: 10px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.search-form {
+    padding: 10px 10px 15px 10px;
+}
+
+.search-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px 15px;
+}
+
+.search-grid label {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+
+.search-grid input {
+    margin-top: 4px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* Buttons under form */
+.search-actions {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.primary-btn,
+.secondary-btn {
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.primary-btn {
+    background: #1a73e8;
+    color: #fff;
+}
+
+.secondary-btn {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.section-heading {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+/* Slightly larger inputs on mobile */
+@media (max-width: 700px) {
+    .search-grid input {
+        font-size: 16px;
+        padding: 10px;
+    }
+}
+.date-wrapper {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    border-radius: 10px;
+    margin-left: 10px;
+}
+
+.date-wrapper:hover {
+    border-color: #007bff;
+}
+
+.date-icon {
+    font-size: 20px;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+.date-input {
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: transparent;
+    color: #333;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(40%);
+}
